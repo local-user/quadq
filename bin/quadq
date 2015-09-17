@@ -1,0 +1,377 @@
+#!/bin/bash
+#
+#                              .___
+#       ________ _______     __| _/          ______
+#      / ____/  |  \__  \   / __ |  ______  / ____/
+#     < <_|  |  |  // __ \_/ /_/ | /_____/ < <_|  |
+#      \__   |____/(____  /\____ |          \__   |
+#         |__|          \/      \/             |__|:
+#         ------------------ version 0.5a ---------
+#
+#
+#   [ overview ]
+#
+#       --------------------------------------------
+#       - feature(s) ------ function(s) ------------
+#       ---- add ------------- cmd_add -------------
+#       ---- delete ---------- cmd_delete ----------
+#       ---- edit ------------ cmd_edit ------------
+#       ---- finish ---------- cmd_finish ----------
+#       ---- help ------------ cmd_help ------------
+#       ---- list ------------ cmd_list ------------
+#       ---- read ------------ cmd_read ------------
+#       ---- start ----------- cmd_start -----------
+#       ---- zero ------------ cmd_zero ------------
+#       ---------------------- display_error -------
+#       ---------------------- display_usage -------
+#       ---------------------- set_payload----------
+#       ---------------------- util_generate_id ----
+#       ---------------------- util_search ---------
+#       --------------------------------------------
+#
+
+
+    # default(s)
+    quadq_base="$HOME/.quadq";
+    quadq_job="$quadq_base/job"
+    quadq_config="$quadq_base/quadq.conf"
+    quadq_script=$(readlink -f $0)
+    quadq_exec='bash'
+
+    #
+    # function(s)
+    #
+
+        #
+        #   "Ode to javascript"
+        #
+        id=
+        job=
+        payload=
+
+        #
+        #   cmd_add -- creates a new job
+        #
+        function cmd_add() {
+            if [ ! -z "$payload" ]; then
+                util_generate_id
+                job="$quadq_job/pending/$id.job"
+                echo "#"                                >> $job
+                echo "#"                                >> $job
+                head -10 "$0" | tail -8                 >> $job
+                echo "#"                                >> $job
+                echo "#"                                >> $job
+                echo ""                                 >> $job
+                echo ""                                 >> $job
+                echo -e "\t# command"                   >> $job
+                echo -e "\t$payload"                    >> $job
+                echo ""                                 >> $job
+                echo ""                                 >> $job
+                echo "#"                                >> $job
+                echo "$quadq_script -q $id"             >> $job
+                echo "#"                                >> $job
+                echo "# generated @ `date`"             >> $job
+                return 0
+            else
+                display_error 'unable to add, command not specified.'
+            fi
+        }
+
+        #
+        #   cmd_delete -- deletes a job
+        #
+        function cmd_delete() {
+            if [ -w "$job" ]; then
+                rm --verbose "$job"*
+            else
+                display_error 'unable to delete, job not found.'
+            fi
+            return 0
+        }
+
+        #
+        #   cmd_edit -- edit a job
+        #
+        function cmd_edit() {
+            if [ -r "$job" ]; then
+                if [ ! -z "$EDITOR" ]; then
+                    "$EDITOR" "$job"
+                else
+                    display_error 'default editor not set.'
+                fi
+            else
+                display_error 'unable to edit, job not found.'
+            fi
+            return 0
+        }
+
+        #
+        #   cmd_finish -- finish a job
+        #
+        function cmd_finish() {
+            if [ -r "$job" ]; then
+                mv "$job"* "$quadq_job/complete";
+            else
+                display_error 'unable to finish, job not attractive'
+            fi
+        }
+
+        #
+        #   display_help
+        #
+        function cmd_help() {
+            echo "$0 usage:                                                 "
+            echo "                                                          "
+            echo "  Overview:                                               "
+            echo "                                                          "
+            echo "      A flat file job queue program.                      "
+            echo "                                                          "
+            echo "                                                          "
+            echo "  Features:                                               "
+            echo "                                                          "
+            echo "      [-a command] --------------- Add a job.             "
+            echo "      [-d jobid] ----------------- Delete a job.          "
+            echo "      [-e jobid] ----------------- Edit a job.            "
+            echo "      [-f jobid] ----------------- Finish a job.          "
+            echo "      [-h] ----------------------- Help.                  "
+            echo "      [-l] ----------------------- List job status.       "
+            echo "      [-q] ----------------------- Quadq callback hook.   "
+            echo "      [-r jobid]] ---------------- Read (less) a job.     "
+            echo "      [-s] ----------------------- Start.                 "
+            echo "      [-z] ----------------------- Delete completed jobs. "
+            echo "                                                          "
+            echo "                                                          "
+            echo "  Example Usage:                                          "
+            echo "                                                          "
+            echo "      ## Add a commmand ls to the quadq.                  "
+            echo "      -$ quadq -a 'ls'                                    "
+            echo "                                                          "
+            echo "      ## Display the quadq.                               "
+            echo "      -$ quadq -l                                         "
+            echo "                                                          "
+            echo "      ## Edit a job.                                      "
+            echo "      -$ quadq -e 1442451471678716                        "
+            echo "                                                          "
+            echo "      ## Start quadq, 1 job a time.                       "
+            echo "      -$ quadq -s                                         "
+            echo "                                                          "
+            echo "      ## Start quadq, 2 job(s) at a time.                 "
+            echo "      -$ quadq -s && quadq -s                             "
+            echo "                                                          "
+            echo "      ## Start quadq, 3 job(s) at a time.                 "
+            echo "      -$ quadq -s && quadq -s && quadq -s                 "
+            echo "                                                          "
+            echo "      ## View a job by ID.                                "
+            echo "      -$ quadq -r 123812                                  "
+            echo "                                                          "
+            echo "                                                          "
+            echo "  Extra:                                                  "
+            echo "                                                          "
+            echo "      # You do not have to specify the full jobid.        "
+            echo "      # Only enough to unique identify.                   "
+            echo "                                                          "
+            echo "      -$ quodq -r 1442451471678716                        "
+            echo "      -$ quodq -r 8716                                    "
+            echo "                                                          "
+            echo "      # ** The pattern 8716 must be  unique               "
+            echo "                                                          "
+            echo "                                                          "
+        }
+
+        #
+        #   cmd_list -- performs tree on $quadq_base
+        #
+        function cmd_list() {
+            echo "| quadq"
+            tree -C -l --noreport "$quadq_job"                              | \
+                tail -n +2                                                  | \
+                sed 's/\.job\(\x1B\[[0-9]\+m\)\{0,1\}\( ->\|$\)/\1\2/g'
+        } 
+        # reference: pass, password-store
+
+        #
+        #   cmd_read -- less a job
+        #
+        function cmd_read() {
+            if [ -r "$job" ]; then
+                less "$job"*
+            else
+                display_error 'unable to read, job not found.'
+            fi
+            return 0
+        }
+
+        #
+        #   cmd_start -- starts oldest job in pending
+        #
+        function cmd_start() {
+
+            pending="$quadq_job/pending"
+            if [ `ls "$pending" | wc -l` -gt 0 ]; then
+
+                job=`ls -1t "$pending/"*".job" | tail -1`
+
+                active="$quadq_job/active/`basename $job`"
+                mv "$job" "$active"
+                echo "# activated @ `date`" >> $active
+                job="$active"
+
+                output="$job.output"
+                touch "$output"
+                if [ -w "$output" ]; then
+                    echo     "#"                                    >> "$output"
+                    echo     "#"                                    >> "$output"
+                    head -10 "$quadq_script" | tail -8              >> "$output"
+                    echo     "#"                                    >> "$output"
+                    echo -e  "#\tjob      \t@\t`basename $job`"     >> "$output"
+                    echo -e  "#\tprocessed\t@\t`date`"              >> "$output"
+                    echo     "#"                                    >> "$output"
+                    echo     "#"                                    >> "$output"
+                    "$quadq_exec" "$job"                            >> "$output" 2>&1   &
+                else 
+                    display_error "unable to start, '$output' is not writeable"
+                fi
+
+            else
+                # finish: no more jobs.
+                exit 2
+            fi
+
+        }
+
+        #
+        #   cmd_zero -- removes completed jobs
+        #
+        function cmd_zero() {
+            rm --verbose "$quadq_job/complete/"*
+        }
+
+        #
+        #   display_error - registers you a profile on ashley madison
+        #   $1 = error message
+        #
+        function display_error() {
+            echo "quadq error: $1"
+            exit 2
+        }
+
+        #
+        #   display_usage - command usage
+        #
+        function display_usage() {
+            echo "$0 missing operand."
+            echo "Try '$0 -h' for more information"
+            exit 2
+        }
+
+        #
+        #   set_payload - sets command payload
+        #   $1 = payload (command to be executed)
+        #
+        function set_payload() {
+            payload="$1"
+        }
+
+        #
+        #   util_generate_id - generates unique id
+        #
+        function util_generate_id() {
+            run=0
+            id=$( echo `date +%s``shuf -i 100000-999999 -n 1` )
+            unique=$( find "$quadq_job" -name *$id* | wc -l )
+            while [ $unique -ne 0 ]; do
+                id=$( echo `date +%s``shuf -i 100000-999999 -n 1` )
+                unique=$( find "$quadq_job" -name *$id* | wc -l )
+            done
+        }
+
+        #
+        #   util_search - translates jobid to job file path
+        #   $1 = user_jobid
+        #
+        function util_search() {
+                     result_count=$( find "$quadq_job" -name *"$1"*".job" -type f | wc -l )
+            if   [ "$result_count" -eq 1 ]; then
+                job=$( find "$quadq_job" -name *"$1"*".job" -type f )
+            elif [ "$result_count" -gt 1 ]; then
+                display_error "multiple jobs found matching '$1'."
+                exit 2
+            else
+                display_error "unable to find any jobs matching '$1'."
+                exit 2
+            fi
+            return 0
+        }
+
+    #
+    # function(s)
+    # -- end
+    #
+
+
+    #
+    # logic
+    #
+
+        # config
+        if [ -r "$quadq_config" ]; then
+            source "$quadq_config"
+        fi
+
+        # mkdir
+        mkdir -p  "$quadq_job"
+        mkdir -p  "$quadq_job/pending"
+        mkdir -p  "$quadq_job/active"
+        mkdir -p  "$quadq_job/complete"
+        if [ ! -d "$quadq_job" ]; then
+            echo "$0 error: unable to create '$quadq_base'"
+        fi
+
+        # no argument(s)
+        if [ $# -eq 0 ]; then
+            display_usage
+            exit 2
+        fi
+
+        # argument(s) 
+        while getopts "a:d:e:f:hlq:r:sz" arg; do
+            case $arg in
+                a)  set_payload "$OPTARG"
+                    cmd_add
+                    ;;
+                d)  util_search "$OPTARG"
+                    cmd_delete
+                    ;;
+                e)  util_search "$OPTARG"
+                    cmd_edit
+                    ``;;
+                f)  util_search "$OPTARG"
+                    cmd_finish
+                    ;;
+                h)  cmd_help
+                    ;;
+                l)  cmd_list
+                    ;;
+                q)  util_search "$OPTARG"
+                    cmd_finish
+                    cmd_start
+                    ;;
+                r)  util_search "$OPTARG"
+                    cmd_read
+                    ;;
+                s)  cmd_start
+                    ;;
+                z)  cmd_zero
+                    ;;
+            esac
+        done
+
+    #
+    # logic
+    # -- end
+    #
+
+
+#
+# ^(^_^)> -- pew pew
+#
