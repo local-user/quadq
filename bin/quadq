@@ -185,8 +185,8 @@
             echo "| quadq"
             tree -C -l --noreport "$quadq_job"                              | \
                 tail -n +2                                                  | \
-                sed 's/\.job\(\x1B\[[0-9]\+m\)\{0,1\}\( ->\|$\)/\1\2/g'
-        } 
+                sed 's/\.job//g'
+        }
         # reference: pass, password-store
 
         #
