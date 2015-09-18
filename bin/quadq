@@ -14,6 +14,7 @@
 #       --------------------------------------------
 #       - feature(s) ------ function(s) ------------
 #       ---- add ------------- cmd_add -------------
+#       ---- clone ----------- cmd_clone -----------
 #       ---- delete ---------- cmd_delete ----------
 #       ---- edit ------------ cmd_edit ------------
 #       ---- finish ---------- cmd_finish ----------
@@ -49,6 +50,7 @@
     cp='cp'
     date='date'
     echo='echo'
+    head='head'
     find='find'
     less='less'
     ls='ls'
@@ -92,6 +94,17 @@
             else
                 display_error 'unable to add, command not specified'
             fi
+        }
+
+        #
+        #   cmd_clone -- clone a job.
+        #
+        function cmd_clone() {
+            util_generate_id
+            $head -n -1 "$job" > "$quadq_job/pending/$id.job"
+            job="$quadq_job/pending/$id.job"
+            $echo "$quadq_script -q $id" >> $job
+            return 0
         }
 
         #
@@ -147,6 +160,7 @@
             $echo "  Features:                                               "
             $echo "                                                          "
             $echo "      [-a command] --------------- Add a job.             "
+            $echo "      [-c jobid] ----------------- Clone a job.           "
             $echo "      [-d jobid] ----------------- Delete a job.          "
             $echo "      [-e jobid] ----------------- Edit a job.            "
             $echo "      [-f jobid] ----------------- Finish a job.          "
@@ -303,6 +317,7 @@
         #
         function set_verbose() {
             cp='cp --verbose'
+            head='head --verbose'
             mv='mv --verbose'
             rm='rm --verbose'
             verbose=0
@@ -367,10 +382,13 @@
         fi
 
         # argument(s) 
-        while getopts ":a:d:e:f:hlq:r:svx:z" arg; do
+        while getopts ":a:c:d:e:f:hlq:r:svx:z" arg; do
             case $arg in
                 a)  set_payload "$OPTARG"
                     cmd_add
+                    ;;
+                c)  util_search "$OPTARG"
+                    cmd_clone
                     ;;
                 d)  util_search "$OPTARG"
                     cmd_delete
