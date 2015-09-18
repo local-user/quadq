@@ -22,6 +22,7 @@
 #       ---- read ------------ cmd_read ------------
 #       ---- start ----------- cmd_start -----------
 #       ---- xact ------------ cmd_xact ------------
+#       ---- verbose --------- set_verbose ---------
 #       ---- zero ------------ cmd_zero ------------
 #       ---------------------- display_error -------
 #       ---------------------- display_usage -------
@@ -126,7 +127,7 @@
         #
         function cmd_finish() {
             if [ -r "$job" ]; then
-                "$mv" "$job"* "$quadq_job/complete";
+                $mv "$job"* "$quadq_job/complete";
             else
                 display_error 'unable to finish, job not attractive'
             fi
@@ -154,6 +155,8 @@
             $echo "      [-q] ----------------------- Quadq callback hook.   "
             $echo "      [-r jobid]] ---------------- Read ($less) a job.    "
             $echo "      [-s] ----------------------- Start.                 "
+            $echo "      [-v] ----------------------- Verbose.               "
+            $echo "      [-x] ----------------------- Copy a job.            "
             $echo "      [-z] ----------------------- Delete completed jobs. "
             $echo "                                                          "
             $echo "                                                          "
