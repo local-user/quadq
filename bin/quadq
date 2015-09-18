@@ -209,7 +209,7 @@
             pending="$quadq_job/pending"
             if [ `ls "$pending" | wc -l` -gt 0 ]; then
 
-                job=`ls -1t "$pending/"*".job" | tail -1`
+                job=$( ls -1t "$pending/"*".job" | tail -1 )
 
                 active="$quadq_job/active/`basename $job`"
                 mv "$job" "$active"
@@ -219,15 +219,7 @@
                 output="$job.output"
                 touch "$output"
                 if [ -w "$output" ]; then
-                    echo     "#"                                    >> "$output"
-                    echo     "#"                                    >> "$output"
-                    head -10 "$quadq_script" | tail -8              >> "$output"
-                    echo     "#"                                    >> "$output"
-                    echo -e  "#\tjob      \t@\t`basename $job`"     >> "$output"
-                    echo -e  "#\tprocessed\t@\t`date`"              >> "$output"
-                    echo     "#"                                    >> "$output"
-                    echo     "#"                                    >> "$output"
-                    "$quadq_exec" "$job"                            >> "$output" 2>&1   &
+                    "$quadq_exec" "$job" >> "$output" 2>&1   &
                 else 
                     display_error "unable to start, '$output' is not writeable"
                 fi
