@@ -97,7 +97,7 @@
         #
         function cmd_delete() {
             if [ -w "$job" ]; then
-                $rm --verbose "$job"*
+                $rm "$job"*
             else
                 display_error 'unable to delete, job not found'
             fi
@@ -248,7 +248,7 @@
         #   cmd_zero -- removes completed jobs from $quadq_job/complete
         #
         function cmd_zero() {
-            $rm --verbose "$quadq_job/complete/"*
+            $rm "$quadq_job/complete/"*
         }
 
         #
@@ -283,6 +283,8 @@
         #   set_verbose - set verbose true
         #
         function set_verbose() {
+            rm='rm --verbose'
+            mv='mv --verbose'
             verbose=0
         }
 
