@@ -48,6 +48,7 @@
         id=
         job=
         payload=
+        verbose=
 
         #
         #   cmd_add -- creates a new job
@@ -265,6 +266,13 @@
         }
 
         #
+        #   set_verbose - set verbose true
+        #
+        function set_verbose() {
+            verbose=0
+        }
+
+        #
         #   util_generate_id - generates unique id
         #
         function util_generate_id() {
@@ -326,7 +334,7 @@
         fi
 
         # argument(s) 
-        while getopts "a:d:e:f:hlq:r:sz" arg; do
+        while getopts "a:d:e:f:hlq:r:svz" arg; do
             case $arg in
                 a)  set_payload "$OPTARG"
                     cmd_add
@@ -352,6 +360,8 @@
                     cmd_read
                     ;;
                 s)  cmd_start
+                    ;;
+                v)  set_verbose
                     ;;
                 z)  cmd_zero
                     ;;
