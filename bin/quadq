@@ -31,12 +31,33 @@
 #
 
 
+    #
     # default(s)
+    #
     quadq_base="$HOME/.quadq";
     quadq_job="$quadq_base/job"
     quadq_config="$quadq_base/quadq.conf"
     quadq_script=$(readlink -f $0)
     quadq_exec='bash'
+
+
+    #
+    # command(s)
+    #
+    date='date'
+    echo='echo'
+    find='find'
+    less='less'
+    ls='ls'
+    mkdir='mkdir'
+    mv='mv'
+    rm='rm'
+    sed='sed'
+    shuf='shuf'
+    tail='tail'
+    touch='touch'
+    tree='tree'
+
 
     #
     # function(s)
@@ -48,7 +69,7 @@
         id=
         job=
         payload=
-        verbose=
+        verbose=1
 
         #
         #   cmd_add -- creates a new job
@@ -57,13 +78,14 @@
             if [ ! -z "$payload" ]; then
                 util_generate_id
                 job="$quadq_job/pending/$id.job"
-                echo "# quadq.job.$id"                  >> $job
-                echo ""                                 >> $job
-                echo -e "\t# job.command"               >> $job
-                echo -e "\t$payload"                    >> $job
-                echo ""                                 >> $job
-                echo "# quadq.hook"                     >> $job
-                echo "$quadq_script -q $id"             >> $job
+                $echo "# quadq.job.id[$id]"             >> $job
+                $echo "# quadq.job.command"             >> $job
+                $echo ""                                >> $job
+                $echo -e "\t$payload"                   >> $job
+                $echo ""                                >> $job
+                $echo "#"                               >> $job
+                $echo "# quadq.hook"                    >> $job
+                $echo "$quadq_script -q $id"            >> $job
                 return 0
             else
                 display_error 'unable to add, command not specified'
@@ -75,7 +97,7 @@
         #
         function cmd_delete() {
             if [ -w "$job" ]; then
-                rm --verbose "$job"*
+                $rm --verbose "$job"*
             else
                 display_error 'unable to delete, job not found'
             fi
@@ -103,7 +125,7 @@
         #
         function cmd_finish() {
             if [ -r "$job" ]; then
-                mv "$job"* "$quadq_job/complete";
+                $mv "$job"* "$quadq_job/complete";
             else
                 display_error 'unable to finish, job not attractive'
             fi
@@ -113,81 +135,81 @@
         #   display_help
         #
         function cmd_help() {
-            echo "$0 usage:                                                 "
-            echo "                                                          "
-            echo "  Overview:                                               "
-            echo "                                                          "
-            echo "      A flat file job queue program.                      "
-            echo "                                                          "
-            echo "                                                          "
-            echo "  Features:                                               "
-            echo "                                                          "
-            echo "      [-a command] --------------- Add a job.             "
-            echo "      [-d jobid] ----------------- Delete a job.          "
-            echo "      [-e jobid] ----------------- Edit a job.            "
-            echo "      [-f jobid] ----------------- Finish a job.          "
-            echo "      [-h] ----------------------- Help.                  "
-            echo "      [-l] ----------------------- List job status.       "
-            echo "      [-q] ----------------------- Quadq callback hook.   "
-            echo "      [-r jobid]] ---------------- Read (less) a job.     "
-            echo "      [-s] ----------------------- Start.                 "
-            echo "      [-z] ----------------------- Delete completed jobs. "
-            echo "                                                          "
-            echo "                                                          "
-            echo "  Example Usage:                                          "
-            echo "                                                          "
-            echo "      ## Add a commmand ls to the quadq.                  "
-            echo "      -$ quadq -a 'ls'                                    "
-            echo "                                                          "
-            echo "      ## Display the quadq.                               "
-            echo "      -$ quadq -l                                         "
-            echo "                                                          "
-            echo "      ## Edit a job.                                      "
-            echo "      -$ quadq -e 1442451471678716                        "
-            echo "                                                          "
-            echo "      ## Start quadq, 1 job a time.                       "
-            echo "      -$ quadq -s                                         "
-            echo "                                                          "
-            echo "      ## Start quadq, 2 job(s) at a time.                 "
-            echo "      -$ quadq -s && quadq -s                             "
-            echo "                                                          "
-            echo "      ## Start quadq, 3 job(s) at a time.                 "
-            echo "      -$ quadq -s && quadq -s && quadq -s                 "
-            echo "                                                          "
-            echo "      ## View a job by ID.                                "
-            echo "      -$ quadq -r 123812                                  "
-            echo "                                                          "
-            echo "                                                          "
-            echo "  Extra:                                                  "
-            echo "                                                          "
-            echo "      # You do not have to specify the full jobid.        "
-            echo "      # Only enough to unique identify.                   "
-            echo "                                                          "
-            echo "      -$ quodq -r 1442451471678716                        "
-            echo "      -$ quodq -r 8716                                    "
-            echo "                                                          "
-            echo "      # ** The pattern 8716 must be  unique               "
-            echo "                                                          "
-            echo "                                                          "
+            $echo "$0 usage:                                                 "
+            $echo "                                                          "
+            $echo "  Overview:                                               "
+            $echo "                                                          "
+            $echo "      A flat file job queue program.                      "
+            $echo "                                                          "
+            $echo "                                                          "
+            $echo "  Features:                                               "
+            $echo "                                                          "
+            $echo "      [-a command] --------------- Add a job.             "
+            $echo "      [-d jobid] ----------------- Delete a job.          "
+            $echo "      [-e jobid] ----------------- Edit a job.            "
+            $echo "      [-f jobid] ----------------- Finish a job.          "
+            $echo "      [-h] ----------------------- Help.                  "
+            $echo "      [-l] ----------------------- List job status.       "
+            $echo "      [-q] ----------------------- Quadq callback hook.   "
+            $echo "      [-r jobid]] ---------------- Read ($less) a job.    "
+            $echo "      [-s] ----------------------- Start.                 "
+            $echo "      [-z] ----------------------- Delete completed jobs. "
+            $echo "                                                          "
+            $echo "                                                          "
+            $echo "  Example Usage:                                          "
+            $echo "                                                          "
+            $echo "      ## Add a commmand ls to the quadq.                  "
+            $echo "      -$ quadq -a 'ls'                                    "
+            $echo "                                                          "
+            $echo "      ## Display the quadq.                               "
+            $echo "      -$ quadq -l                                         "
+            $echo "                                                          "
+            $echo "      ## Edit a job.                                      "
+            $echo "      -$ quadq -e 1442451471678716                        "
+            $echo "                                                          "
+            $echo "      ## Start quadq, 1 job a time.                       "
+            $echo "      -$ quadq -s                                         "
+            $echo "                                                          "
+            $echo "      ## Start quadq, 2 job(s) at a time.                 "
+            $echo "      -$ quadq -s && quadq -s                             "
+            $echo "                                                          "
+            $echo "      ## Start quadq, 3 job(s) at a time.                 "
+            $echo "      -$ quadq -s && quadq -s && quadq -s                 "
+            $echo "                                                          "
+            $echo "      ## View a job by ID.                                "
+            $echo "      -$ quadq -r 123812                                  "
+            $echo "                                                          "
+            $echo "                                                          "
+            $echo "  Extra:                                                  "
+            $echo "                                                          "
+            $echo "      # You do not have to specify the full jobid.        "
+            $echo "      # Only enough to unique identify.                   "
+            $echo "                                                          "
+            $echo "      -$ quodq -r 1442451471678716                        "
+            $echo "      -$ quodq -r 8716                                    "
+            $echo "                                                          "
+            $echo "      # ** The pattern 8716 must be  unique               "
+            $echo "                                                          "
+            $echo "                                                          "
         }
 
         #
-        #   cmd_list -- performs tree on $quadq_base
+        #   cmd_list -- performs $tree on $quadq_job
         #
         function cmd_list() {
-            echo "| quadq"
-            tree -C -l --noreport "$quadq_job"                              | \
-                tail -n +2                                                  | \
-                sed 's/\.job//g'
+            $echo "| quadq"
+            $tree -C -l --noreport "$quadq_job"                              | \
+                $tail -n +2                                                  | \
+                $sed 's/\.job//g'
         }
         # reference: pass, password-store
 
         #
-        #   cmd_read -- less a job
+        #   cmd_read -- $less a job
         #
         function cmd_read() {
             if [ -r "$job" ]; then
-                less "$job"*
+                $less "$job"*
             else
                 display_error 'unable to read, job not found'
             fi
@@ -195,21 +217,21 @@
         }
 
         #
-        #   cmd_start -- starts oldest job in pending
+        #   cmd_start -- starts oldest job in $quadq_job/pending
         #
         function cmd_start() {
 
             pending="$quadq_job/pending"
-            if [ `ls "$pending" | wc -l` -gt 0 ]; then
+            if [ `$ls "$pending" | wc -l` -gt 0 ]; then
 
-                job=$( ls -1t "$pending/"*".job" | tail -1 )
+                job=$( $ls -1t "$pending/"*".job" | $tail -1 )
 
                 active="$quadq_job/active/`basename $job`"
-                mv "$job" "$active"
+                $mv "$job" "$active"
                 job="$active"
 
                 output="$job.output"
-                touch "$output"
+                $touch "$output"
                 if [ -w "$output" ]; then
                     "$quadq_exec" "$job" >> "$output" 2>&1   &
                 else 
@@ -223,10 +245,10 @@
         }
 
         #
-        #   cmd_zero -- removes completed jobs
+        #   cmd_zero -- removes completed jobs from $quadq_job/complete
         #
         function cmd_zero() {
-            rm --verbose "$quadq_job/complete/"*
+            $rm --verbose "$quadq_job/complete/"*
         }
 
         #
@@ -234,8 +256,8 @@
         #   $1 = error message
         #
         function display_error() {
-            if [ "$verbose" -eq 0 ]; then
-                echo "quadq error: $1."
+            if [ $verbose -eq 0 ]; then
+                $echo "quadq error: $1."
             fi
             exit 2
         }
@@ -244,8 +266,8 @@
         #   display_usage - command usage
         #
         function display_usage() {
-            echo "$0 missing operand."
-            echo "Try '$0 -h' for more information."
+            $echo "$0 missing operand."
+            $echo "Try '$0 -h' for more information."
             exit 2
         }
 
@@ -269,11 +291,11 @@
         #
         function util_generate_id() {
             run=0
-            id=$( echo `date +%s``shuf -i 100000-999999 -n 1` )
-            unique=$( find "$quadq_job" -name *$id* | wc -l )
+            id=$( $echo `$date +%s``$shuf -i 100000-999999 -n 1` )
+            unique=$( $find "$quadq_job" -name *$id* | wc -l )
             while [ $unique -ne 0 ]; do
-                id=$( echo `date +%s``shuf -i 100000-999999 -n 1` )
-                unique=$( find "$quadq_job" -name *$id* | wc -l )
+                id=$( $echo `$date +%s``$shuf -i 100000-999999 -n 1` )
+                unique=$( $find "$quadq_job" -name *$id* | wc -l )
             done
         }
 
@@ -282,9 +304,9 @@
         #   $1 = user_jobid
         #
         function util_search() {
-                     result_count=$( find "$quadq_job" -name *"$1"*".job" -type f | wc -l )
+                     result_count=$( $find "$quadq_job" -name *"$1"*".job" -type f | wc -l )
             if   [ "$result_count" -eq 1 ]; then
-                job=$( find "$quadq_job" -name *"$1"*".job" -type f )
+                job=$( $find "$quadq_job" -name *"$1"*".job" -type f )
             elif [ "$result_count" -gt 1 ]; then
                 display_error "multiple jobs found matching '$1'"
             else
@@ -308,11 +330,11 @@
             source "$quadq_config"
         fi
 
-        # mkdir
-        mkdir -p  "$quadq_job"
-        mkdir -p  "$quadq_job/pending"
-        mkdir -p  "$quadq_job/active"
-        mkdir -p  "$quadq_job/complete"
+        # $mkdir
+        $mkdir -p "$quadq_job"
+        $mkdir -p "$quadq_job/pending"
+        $mkdir -p "$quadq_job/active"
+        $mkdir -p "$quadq_job/complete"
         if [ ! -d "$quadq_job" ]; then
             display_error "unable to create '$quadq_base'"
         fi
@@ -333,7 +355,7 @@
                     ;;
                 e)  util_search "$OPTARG"
                     cmd_edit
-                    ``;;
+                    ;;
                 f)  util_search "$OPTARG"
                     cmd_finish
                     ;;
