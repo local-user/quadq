@@ -21,6 +21,7 @@
 #       ---- list ------------ cmd_list ------------
 #       ---- read ------------ cmd_read ------------
 #       ---- start ----------- cmd_start -----------
+#       ---- xact ------------ cmd_xact ------------
 #       ---- zero ------------ cmd_zero ------------
 #       ---------------------- display_error -------
 #       ---------------------- display_usage -------
@@ -44,6 +45,7 @@
     #
     # command(s)
     #
+    cp='cp'
     date='date'
     echo='echo'
     find='find'
@@ -78,7 +80,6 @@
             if [ ! -z "$payload" ]; then
                 util_generate_id
                 job="$quadq_job/pending/$id.job"
-                $echo "# quadq.job.id[$id]"             >> $job
                 $echo "# quadq.job.command"             >> $job
                 $echo ""                                >> $job
                 $echo -e "\t$payload"                   >> $job
@@ -125,7 +126,7 @@
         #
         function cmd_finish() {
             if [ -r "$job" ]; then
-                $mv "$job"* "$quadq_job/complete";
+                "$mv" "$job"* "$quadq_job/complete";
             else
                 display_error 'unable to finish, job not attractive'
             fi
@@ -245,6 +246,14 @@
         }
 
         #
+        #   cmd_xact -- replicate an existing job and place it in queue w/ new id.
+        #
+        function cmd_xact() {
+            util_generate_id
+            $cp "$job" "$quadq_job/pending/$id.job"
+        }
+
+        #
         #   cmd_zero -- removes completed jobs from $quadq_job/complete
         #
         function cmd_zero() {
@@ -258,6 +267,8 @@
         function display_error() {
             if [ $verbose -eq 0 ]; then
                 $echo "quadq error: $1."
+            else
+                $echo "quadq error: $1." >&2
             fi
             exit 2
         }
@@ -283,8 +294,9 @@
         #   set_verbose - set verbose true
         #
         function set_verbose() {
-            rm='rm --verbose'
+            cp='cp --verbose'
             mv='mv --verbose'
+            rm='rm --verbose'
             verbose=0
         }
 
@@ -347,7 +359,7 @@
         fi
 
         # argument(s) 
-        while getopts "a:d:e:f:hlq:r:svz" arg; do
+        while getopts "a:d:e:f:hlq:r:svx:z" arg; do
             case $arg in
                 a)  set_payload "$OPTARG"
                     cmd_add
@@ -375,6 +387,9 @@
                 s)  cmd_start
                     ;;
                 v)  set_verbose
+                    ;;
+                x)  util_search "$OPTARG"
+                    cmd_xact
                     ;;
                 z)  cmd_zero
                     ;;
