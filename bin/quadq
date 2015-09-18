@@ -57,21 +57,13 @@
             if [ ! -z "$payload" ]; then
                 util_generate_id
                 job="$quadq_job/pending/$id.job"
-                echo "#"                                >> $job
-                echo "#"                                >> $job
-                head -10 "$0" | tail -8                 >> $job
-                echo "#"                                >> $job
-                echo "#"                                >> $job
+                echo "# quadq.job.$id"                  >> $job
                 echo ""                                 >> $job
-                echo ""                                 >> $job
-                echo -e "\t# command"                   >> $job
+                echo -e "\t# job.command"               >> $job
                 echo -e "\t$payload"                    >> $job
                 echo ""                                 >> $job
-                echo ""                                 >> $job
-                echo "#"                                >> $job
+                echo "# quadq.hook"                     >> $job
                 echo "$quadq_script -q $id"             >> $job
-                echo "#"                                >> $job
-                echo "# generated @ `date`"             >> $job
                 return 0
             else
                 display_error 'unable to add, command not specified'
@@ -214,7 +206,6 @@
 
                 active="$quadq_job/active/`basename $job`"
                 mv "$job" "$active"
-                echo "# activated @ `date`" >> $active
                 job="$active"
 
                 output="$job.output"
