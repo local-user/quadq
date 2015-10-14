@@ -2,13 +2,13 @@
 
 
 
-###overview
+###Overview
 
 a BASH flat file job queue script
 
 
 
-###usage
+###Usage
 
 quadq [add|clone|delete|edit|finish|flush|help|list|quadq|read|restart|start] option
 
@@ -28,10 +28,10 @@ quadq example usage:
 
 
 
-###extra
+###Extra
 
 
-#####matching jobid
+#####Matching [jobid]
 
 To select a job you only require a unique portion of the jobib.
 
