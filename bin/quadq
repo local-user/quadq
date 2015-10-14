@@ -32,14 +32,15 @@
 #       ---------------------- util_search ---------
 #       --------------------------------------------
 #
+#
 
 
     #
     # default(s)
     #
-    quadq_base="$HOME/.quadq";
-    quadq_job="$quadq_base/job"
-    quadq_config="$quadq_base/quadq.conf"
+    quadq="$HOME/.config/quadq";
+    quadq_job="$quadq/job"
+    quadq_config="$quadq/quadq.conf"
     quadq_script=$(readlink -f $0)
     quadq_exec='bash'
 
