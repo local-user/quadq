@@ -447,6 +447,12 @@
                 shift
                 cmd_read
                 ;;
+            restart|-x)
+                shift
+                util_search "$1"
+                shift
+                cmd_xact
+                ;;
             start|-s)
                 shift
                 cmd_start
@@ -454,12 +460,6 @@
             verbose|-v)
                 shift
                 set_verbose
-                ;;
-            xact|-x)
-                shift
-                util_search "$1"
-                shift
-                cmd_xact
                 ;;
             zero|-z)
                 shift
