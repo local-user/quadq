@@ -12,6 +12,7 @@
 #   [ overview ]
 #
 #       --------------------------------------------
+#       --------------------------------------------
 #       - feature(s) ------ function(s) ------------
 #       ---- add ------------- cmd_add -------------
 #       ---- clone ----------- cmd_clone -----------
@@ -31,6 +32,7 @@
 #       ---------------------- util_generate_id ----
 #       ---------------------- util_search ---------
 #       --------------------------------------------
+#       --------------------------------------------
 #
 #
 
@@ -39,10 +41,11 @@
     # default(s)
     #
     quadq="$HOME/.config/quadq";
-    quadq_job="$quadq/job"
     quadq_config="$quadq/quadq.conf"
-    quadq_script=$(readlink -f $0)
     quadq_exec='bash'
+    quadq_job="$quadq/job"
+    quadq_name="quadq"
+    quadq_script=$(readlink -f $0)
 
 
     #
@@ -93,7 +96,7 @@
                 $echo "$quadq_script -q $id"            >> $job
                 return 0
             else
-                display_error 'unable to add, command not specified'
+                display_error 'Unable to add, command not specified'
             fi
         }
 
@@ -115,7 +118,7 @@
             if [ -w "$job" ]; then
                 $rm "$job"*
             else
-                display_error 'unable to delete, job not found'
+                display_error 'Unable to delete, job not found'
             fi
             return 0
         }
@@ -128,10 +131,10 @@
                 if [ ! -z "$EDITOR" ]; then
                     "$EDITOR" "$job"
                 else
-                    display_error 'default editor not set'
+                    display_error 'Default editor not set'
                 fi
             else
-                display_error 'unable to edit, job not found'
+                display_error 'Unable to edit, job not found'
             fi
             return 0
         }
@@ -143,7 +146,7 @@
             if [ -r "$job" ]; then
                 $mv "$job"* "$quadq_job/complete";
             else
-                display_error 'unable to finish, job not attractive'
+                display_error 'Unable to finish, job not attractive'
             fi
         }
 
@@ -230,7 +233,7 @@
             if [ -r "$job" ]; then
                 $less "$job"*
             else
-                display_error 'unable to read, job not found'
+                display_error 'Unable to read, job not found'
             fi
             return 0
         }
@@ -255,11 +258,11 @@
                 if [ -w "$output" ]; then
                     "$quadq_exec" "$job" >> "$output" 2>&1   &
                 else 
-                    display_error "unable to start, '$output' is not writeable"
+                    display_error "Unable to start, '$output' is not writeable"
                 fi
 
             else
-                display_error 'no jobs pending'
+                display_error 'No jobs pending'
             fi
 
         }
@@ -272,7 +275,7 @@
             if [ $? -eq 0 ]; then
                 $mv "$job"* "$quadq_job/pending/"
             else 
-                display_error 'job not complete'
+                display_error 'Job not complete'
             fi
         }
 
@@ -289,9 +292,9 @@
         #
         function display_error() {
             if [ $verbose -eq 0 ]; then
-                $echo "quadq error: $1."
+                $echo "Error: $1."
             else
-                $echo "quadq error: $1." >&2
+                $echo "Error: $1." >&2
             fi
             exit 2
         }
@@ -300,8 +303,8 @@
         #   display_usage - command usage
         #
         function display_usage() {
-            $echo "$0 missing operand."
-            $echo "Try '$0 -h' for more information."
+            $echo "Error: Missing argument."
+            $echo "Try '$quadq_name -h' for more information."
             exit 2
         }
 
@@ -360,9 +363,9 @@
             if   [ "$result_count" -eq 1 ]; then
                 job=$( $find "$quadq_job" -name *"$1"*".job" -type f )
             elif [ "$result_count" -gt 1 ]; then
-                display_error "multiple jobs found matching '$1'"
+                display_error "Multiple jobs found matching '$1'"
             else
-                display_error "unable to find any jobs matching '$1'"
+                display_error "Unable to find any jobs matching '$1'"
             fi
             return 0
         }
