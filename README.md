@@ -1,5 +1,10 @@
 # quad-q
-####a BASH flat file job queue script
+
+
+
+###overview
+
+a BASH flat file job queue script
 
 
 
