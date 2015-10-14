@@ -23,7 +23,7 @@
 #       ---- list ------------ cmd_list ------------
 #       ---- read ------------ cmd_read ------------
 #       ---- start ----------- cmd_start -----------
-#       ---- xact ------------ cmd_xact ------------
+#       ---- restart --------- cmd_restart ---------
 #       ---- verbose --------- set_verbose ---------
 #       ---- zero ------------ cmd_zero ------------
 #       ---------------------- display_error -------
@@ -150,6 +150,12 @@
             fi
         }
 
+        #   cmd_flush -- removes completed jobs from $quadq_job/complete
+        #
+        function cmd_flush() {
+            $rm "$quadq_job/complete/"*
+        }
+
         #
         #   display_help
         #
@@ -228,6 +234,19 @@
         }
 
         #
+        #   cmd_restart -- restart a completed job.
+        #
+        function cmd_restart() {
+            $echo "$job" | $grep 'complete' > /dev/null
+            if [ $? -eq 0 ]; then
+                $mv "$job"* "$quadq_job/pending/"
+            else 
+                display_error 'Job not complete'
+            fi
+        }
+
+        #
+        #
         #   cmd_start -- starts oldest job in $quadq_job/pending
         #
         function cmd_start() {
@@ -256,26 +275,6 @@
 
         }
 
-        #
-        #   cmd_xact -- restart a completed job.
-        #
-        function cmd_xact() {
-            $echo "$job" | $grep 'complete' > /dev/null
-            if [ $? -eq 0 ]; then
-                $mv "$job"* "$quadq_job/pending/"
-            else 
-                display_error 'Job not complete'
-            fi
-        }
-
-        #
-        #   cmd_zero -- removes completed jobs from $quadq_job/complete
-        #
-        function cmd_zero() {
-            $rm "$quadq_job/complete/"*
-        }
-
-        #
         #   display_error - display error if verbose
         #   $1 = error message
         #
@@ -418,6 +417,10 @@
                 shift
                 cmd_finish
                 ;;
+            flush|-z)
+                shift
+                cmd_flush
+                ;;
             help|-h)
                 shift
                 cmd_help
@@ -443,7 +446,7 @@
                 shift
                 util_search "$1"
                 shift
-                cmd_xact
+                cmd_restart
                 ;;
             start|-s)
                 shift
@@ -452,10 +455,6 @@
             verbose|-v)
                 shift
                 set_verbose
-                ;;
-            zero|-z)
-                shift
-                cmd_zero
                 ;;
             *)
                 display_usage
