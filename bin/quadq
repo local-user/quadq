@@ -336,6 +336,20 @@
             done
         }
 
+
+        #
+        #   util_mkdir - make a directory or exit
+        #   $1 = path
+        #
+        function util_mkdir() {
+            $mkdir -p "$1"
+            if [ $? -ne 0 ]; then
+                display_error "Unable to create '$1'"
+                $exit 2
+            fi
+            return 0
+        }
+
         #
         #   util_search - translates jobid to job file path
         #   $1 = user_jobid
@@ -362,26 +376,24 @@
     # logic
     #
 
-        # config
+        # check -- arg(s)
+        if [ $# -eq 0 ]; then
+            display_usage
+            $exit 2
+        fi
+
+        # check -- config
         if [ -r "$quadq_config" ]; then
             source "$quadq_config"
         fi
 
-        # $mkdir
-        $mkdir -p "$quadq_job"
-        $mkdir -p "$quadq_job/pending"
-        $mkdir -p "$quadq_job/active"
-        $mkdir -p "$quadq_job/complete"
-        if [ ! -d "$quadq_job" ]; then
-            display_error "unable to create '$quadq_base'"
-        fi
+        # create -- directory(s)
+        util_mkdir "$quadq_job"
+        util_mkdir "$quadq_job/pending"
+        util_mkdir "$quadq_job/active"
+        util_mkdir "$quadq_job/complete"
 
-        # no argument(s)
-        if [ $# -eq 0 ]; then
-            display_usage
-        fi
-
-        # argument(s) 
+        # arg(s)
         while getopts ":a:c:d:e:f:hlq:r:svx:z" arg; do
             case $arg in
                 a)  set_payload "$OPTARG"
