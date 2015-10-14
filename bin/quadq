@@ -385,6 +385,9 @@
         util_mkdir "$quadq_job/active"
         util_mkdir "$quadq_job/complete"
 
+        # set -- verbose
+        set_verbose
+
         # arg(s)
         case "$1" in
             add|-a)
@@ -451,10 +454,6 @@
             start|-s)
                 shift
                 cmd_start
-                ;;
-            verbose|-v)
-                shift
-                set_verbose
                 ;;
             *)
                 display_usage
