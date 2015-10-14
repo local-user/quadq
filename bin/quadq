@@ -303,7 +303,7 @@
         #   display_usage - command usage
         #
         function display_usage() {
-            $echo "Error: Missing argument."
+            $echo "Error: Incorrect usage."
             $echo "Try '$quadq_name -h' for more information."
             exit 2
         }
