@@ -395,45 +395,77 @@
         util_mkdir "$quadq_job/complete"
 
         # arg(s)
-        while getopts ":a:c:d:e:f:hlq:r:svx:z" arg; do
-            case $arg in
-                a)  set_payload "$OPTARG"
-                    cmd_add
-                    ;;
-                c)  util_search "$OPTARG"
-                    cmd_clone
-                    ;;
-                d)  util_search "$OPTARG"
-                    cmd_delete
-                    ;;
-                e)  util_search "$OPTARG"
-                    cmd_edit
-                    ;;
-                f)  util_search "$OPTARG"
-                    cmd_finish
-                    ;;
-                h)  cmd_help
-                    ;;
-                l)  cmd_list
-                    ;;
-                q)  util_search "$OPTARG"
-                    cmd_finish
-                    cmd_start
-                    ;;
-                r)  util_search "$OPTARG"
-                    cmd_read
-                    ;;
-                s)  cmd_start
-                    ;;
-                v)  set_verbose
-                    ;;
-                x)  util_search "$OPTARG"
-                    cmd_xact
-                    ;;
-                z)  cmd_zero
-                    ;;
-            esac
-        done
+        case "$1" in
+            add|-a)
+                shift
+                set_payload "$1"
+                shift
+                cmd_add
+                ;;
+            clone|-c)
+                shift
+                util_search "$1"
+                shift
+                cmd_clone
+                ;;
+            delete|-d)
+                shift
+                util_search "$1"
+                shift
+                cmd_delete
+                ;;
+            edit|-e)
+                shift
+                util_search "$1"
+                shift
+                cmd_edit
+                ;;
+            finish|-f)
+                shift
+                util_search "$1"
+                shift
+                cmd_finish
+                ;;
+            help|-h)
+                shift
+                cmd_help
+                ;;
+            list|-l)
+                shift
+                cmd_list
+                ;;
+            quadq|-q)
+                shift
+                util_search "$1"
+                shift
+                cmd_finish
+                cmd_start
+                ;;
+            read|-r)
+                shift
+                util_search "$1"
+                shift
+                cmd_read
+                ;;
+            start|-s)
+                shift
+                cmd_start
+                ;;
+            verbose|-v)
+                shift
+                set_verbose
+                ;;
+            xact|-x)
+                shift
+                util_search "$1"
+                shift
+                cmd_xact
+                ;;
+            zero|-z)
+                shift
+                cmd_zero
+                ;;
+        esac
 
     #
     # logic
