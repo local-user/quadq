@@ -465,6 +465,9 @@
                 shift
                 cmd_zero
                 ;;
+            *)
+                display_usage
+                ;;
         esac
 
     #
