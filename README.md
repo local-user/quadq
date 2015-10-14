@@ -1,11 +1,5 @@
 # quad-q
-##a BASH flat file job queue script
-
-
-
-###overview
-
-a flat file job queue script.
+####a BASH flat file job queue script
 
 
 
@@ -38,4 +32,3 @@ To select a job you only require a unique portion of the jobib.
 
 - quadq read 1444801649672551
 - quadq read 2551
-The above command(s) would perform the same function
